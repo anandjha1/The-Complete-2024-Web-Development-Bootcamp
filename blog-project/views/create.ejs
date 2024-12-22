@@ -1,0 +1,11 @@
+<%- include('header') %>
+
+    <form action="/create<%  %>" method="post">
+        <label for="title">Title :</label>
+        <input type="text" name="title" placeholder="enter title of post">
+        <label for="content">Post Contents :</label>
+        <textarea name="content" placeholder="text contents goes here"></textarea>
+        <button>Submit</button>
+    </form>
+
+    <%- include('footer') %>

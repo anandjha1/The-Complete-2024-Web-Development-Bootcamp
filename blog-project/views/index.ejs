@@ -1,0 +1,16 @@
+<%- include('header') %>
+
+    <h1>All Posts</h1>
+
+    <% if(locals.posts){ %>
+        <ul>
+
+            <% posts.forEach(post=> { %>
+                <li>
+                    <%= post.title %> <a href="/create/<%= post.id %>">Edit</a> <a href="/<%= post.id %>">Delete</a>
+                </li>
+                <% }); %>
+        </ul>
+        <% } %>
+
+            <%- include('footer') %>
