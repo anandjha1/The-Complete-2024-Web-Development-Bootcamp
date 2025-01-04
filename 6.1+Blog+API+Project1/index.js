@@ -57,7 +57,8 @@ app.get('/posts/:id', (req, res) => {
 app.post('/posts', (req, res) => {
   const post = {
     id: ++lastId,
-    ...req.body
+    ...req.body,
+    date: new Date()
   }
   posts.push(post);
   res.json(post);
