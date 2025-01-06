@@ -18,7 +18,7 @@ app.get('/', async (req, res) => {
         res.render("index.ejs", { secret: result.data.secret, user: result.data.username });
     } catch (error) {
         console.log(error.response.data);
-        res.sendStatus(500);
+        res.sendStatus(500)
     }
 });
 
