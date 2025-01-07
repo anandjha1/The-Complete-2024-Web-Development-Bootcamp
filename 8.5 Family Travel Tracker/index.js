@@ -54,8 +54,8 @@ app.post("/add", async (req, res) => {
     const countryCode = data.country_code;
     try {
       await db.query(
-        "INSERT INTO visited_countries (country_code) VALUES ($1)",
-        [countryCode]
+        "INSERT INTO visited_countries (country_code, user_id) VALUES ($1, $2)",
+        [countryCode, currentUserId]
       );
       res.redirect("/");
     } catch (err) {
@@ -65,11 +65,24 @@ app.post("/add", async (req, res) => {
     console.log(err);
   }
 });
-app.post("/user", async (req, res) => {});
+app.post("/user", async (req, res) => {
+  currentUserId = parseInt(req.body["user"]);
+});
 
 app.post("/new", async (req, res) => {
   //Hint: The RETURNING keyword can return the data that was inserted.
   //https://www.postgresql.org/docs/current/dml-returning.html
+  const user_name = req.body["name"];
+  const color = req.body["color"];
+
+  try {
+    const result = await db.query('INSERT INTO users (name, color) VALUES ($1, $2)', [user_name, color]);
+    console.log(result.rows);
+    currentUserId = result.rows[0]
+    res.redirect("/");
+  } catch (e) {
+    console.error('error in adding user : ' + e);
+  }
 });
 
 app.listen(port, () => {
