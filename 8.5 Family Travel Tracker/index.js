@@ -9,7 +9,7 @@ const db = new pg.Client({
   user: "postgres",
   host: "localhost",
   database: "world",
-  password: "123456",
+  password: "password1",
   port: 5432,
 });
 db.connect();
@@ -25,20 +25,28 @@ let users = [
 ];
 
 async function checkVisisted() {
-  const result = await db.query("SELECT country_code FROM visited_countries");
+  const result = await db.query("SELECT country_code FROM visited_countries WHERE user_id = $1 ", [currentUserId]);
   let countries = [];
+
   result.rows.forEach((country) => {
     countries.push(country.country_code);
   });
+  console.log(countries);
   return countries;
+}
+async function getUsers() {
+  const result = await db.query("SELECT * FROM users");
+  return result.rows;
 }
 app.get("/", async (req, res) => {
   const countries = await checkVisisted();
+  users = await getUsers();
+  const color = users.find(user => user.id === currentUserId).color;
   res.render("index.ejs", {
     countries: countries,
     total: countries.length,
     users: users,
-    color: "teal",
+    color: color,
   });
 });
 app.post("/add", async (req, res) => {
@@ -66,7 +74,12 @@ app.post("/add", async (req, res) => {
   }
 });
 app.post("/user", async (req, res) => {
+  if (req.body["add"] === 'new') {
+    return res.render('new.ejs');
+  }
+
   currentUserId = parseInt(req.body["user"]);
+  res.redirect("/");
 });
 
 app.post("/new", async (req, res) => {
@@ -76,14 +89,15 @@ app.post("/new", async (req, res) => {
   const color = req.body["color"];
 
   try {
-    const result = await db.query('INSERT INTO users (name, color) VALUES ($1, $2)', [user_name, color]);
+    const result = await db.query('INSERT INTO users (name, color) VALUES ($1, $2) RETURNING *;', [user_name, color]);
     console.log(result.rows);
-    currentUserId = result.rows[0]
+    currentUserId = result.rows[0].id
     res.redirect("/");
   } catch (e) {
     console.error('error in adding user : ' + e);
   }
 });
+
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
